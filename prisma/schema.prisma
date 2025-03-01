@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ModelPhasic {
+  monofasico
+  bifasico
+  trifasico
+}
+
+enum Framing {
+  AX
+  B1
+  B2
+  B3
+}
+
+model Consumer {
+  id String @id @default(uuid())
+
+  consumptionForaPontaEmKWH Int
+  monthOfConsumption DateTime
+
+  unitId String
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("consumers")
+}
+
+model Unit {
+  id String @id @default(uuid())
+
+  codeOfConsumerUnit String @unique
+  modelPhasic ModelPhasic
+  framing Framing
+  historyOfConsumptionInKWH Consumer[]
+  
+  leadId String
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("units")
+}
+
+model Lead {
+  id String @id @default(uuid())
+
+  fullName String
+  email String @unique
+  phone String
+
+  units Unit[]
+
+  @@map("leads")
+}

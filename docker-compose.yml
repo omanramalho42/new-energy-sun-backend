@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-new-sun-energy
+    ports:
+      - "3001:3001"
+      - "5555:5555"  # Expondo a porta do Prisma Studio
+    environment:
+      - DATABASE_URL=mysql://root:newsunenergypass@mysql:3306/mysql-new-sun-energy
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-new-sun-energy
+    environment:
+      MYSQL_ROOT_PASSWORD: newsunenergypass
+      MYSQL_DATABASE: mysql-new-sun-energy
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mysql_data:
